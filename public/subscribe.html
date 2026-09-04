@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscribe — Blaugrana Daily</title>
+<meta name="description" content="Get a daily Barça digest sent straight to your email — every match, every article, one email.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand" data-logo><span class="dot"></span><span data-site-name>Blaugrana Daily</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="articles.html" class="">Articles</a></li>
+      <li><a href="matchreports.html" class="">Match Reports</a></li>
+      <li><a href="eras.html" class="">Eras &amp; Legends</a></li>
+      <li><a href="clips.html" class="">Clips</a></li>
+      <li><a href="banter.html" class="">Banter</a></li>
+      <li><a href="about.html" class="">About</a></li>
+      <li><a href="contact.html" class="">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div id="auth-area"></div>
+      <a href="subscribe.html" class="nav-btn primary">Subscribe</a>
+    </div>
+    <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</nav>
+
+<header class="page-hero container">
+  <p class="eyebrow">One email. Every day.</p>
+  <h1>Never miss a match, article, or transfer update again.</h1>
+  <p>Subscribe and we'll send a short daily digest straight to your inbox — the latest match report, any new articles published, and the biggest transfer or squad news, all in one email.</p>
+</header>
+<section style="padding-top:0;">
+  <div class="container">
+    <div class="newsletter glass reveal" style="max-width:640px; margin:0 auto;">
+      <h2>What you'll get, daily:</h2>
+      <ul style="text-align:left; max-width:420px; margin:20px auto; color:var(--paper-dim); font-size:.95rem; line-height:2;">
+        <li>⚽ A summary of any match played that day</li>
+        <li>📰 New articles and match reports published</li>
+        <li>🔁 Big transfer or squad news, if any</li>
+        <li>🎬 The best clip of the day, if there is one</li>
+      </ul>
+      <form class="newsletter-form" id="subscribe-form">
+        <input type="email" id="subscribe-email" placeholder="you@email.com" required>
+        <button class="btn btn-primary" type="submit">Subscribe — it's free</button>
+      </form>
+      <p id="subscribe-status" style="margin-top:14px; font-size:.85rem; color:var(--gold); display:none;"></p>
+      <p style="margin-top:16px; font-size:.8rem; color:var(--paper-dim);">Unsubscribe anytime. We'll never sell your email.</p>
+    </div>
+  </div>
+</section>
+<script>
+document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('subscribe-email').value;
+  const status = document.getElementById('subscribe-status');
+  try {
+    const res = await fetch('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    status.textContent = res.ok ? "You're in — check your inbox for a confirmation soon." : 'Something went wrong. Try again.';
+    status.style.display = 'block';
+    if (res.ok) e.target.reset();
+  } catch (err) { status.textContent = 'Could not reach the server.'; status.style.display = 'block'; }
+});
+</script>
+
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-col footer-brand">
+        <div class="brand" data-logo><span class="dot"></span><span data-site-name>Blaugrana Daily</span></div>
+        <p data-tagline>Barça — the history, the present, and what comes next.</p>
+        <div class="footer-socials">
+          <a href="#" data-facebook-url target="_blank" rel="noopener" class="glass" aria-label="Facebook">FB</a>
+          <a href="#" data-tiktok-url target="_blank" rel="noopener" class="glass" aria-label="TikTok">TT</a>
+          <a href="#" data-instagram-url target="_blank" rel="noopener" class="glass" aria-label="Instagram">IG</a>
+          <a href="#" data-twitter-url target="_blank" rel="noopener" class="glass" aria-label="X">𝕏</a>
+          <a href="#" data-youtube-url target="_blank" rel="noopener" class="glass" aria-label="YouTube">YT</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="articles.html">Articles</a>
+        <a href="matchreports.html">Match Reports</a>
+        <a href="eras.html">Eras &amp; Legends</a>
+        <a href="clips.html">Clips</a>
+        <a href="banter.html">Banter</a>
+      </div>
+      <div class="footer-col">
+        <h4>Site</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="subscribe.html">Subscribe</a>
+        <a href="support.html">Support Us</a>
+      </div>
+      <div class="footer-col footer-newsletter">
+        <h4>Daily Digest</h4>
+        <p style="margin-bottom:12px; font-size:.85rem;">One email a day. No spam.</p>
+        <form id="footer-newsletter-form">
+          <input type="email" id="footer-newsletter-email" placeholder="you@email.com" required>
+          <button class="btn btn-primary" type="submit" style="width:100%;">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 <span data-site-name>Blaugrana Daily</span>. Fan-made — not officially affiliated with FC Barcelona.</span>
+      <span>Made for the culers, every matchday<a href="admin.html" class="hidden-admin-link">.</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box glass">
+    <button class="modal-close">✕</button>
+    <form id="login-form-modal">
+      <h3>Log In</h3>
+      <input type="email" id="login-email-modal" placeholder="Email" required>
+      <input type="password" id="login-password-modal" placeholder="Password" required>
+      <button class="btn btn-primary" type="submit">Log In</button>
+      <p id="login-error-modal" style="display:none;color:var(--garnet-2);font-size:.85rem;"></p>
+      <p class="modal-switch">New here? <a id="show-signup">Create an account</a></p>
+    </form>
+    <form id="signup-form-modal" style="display:none;">
+      <h3>Sign Up</h3>
+      <input type="text" id="signup-name-modal" placeholder="Full name" required>
+      <input type="text" id="signup-username-modal" placeholder="Username" required>
+      <input type="email" id="signup-email-modal" placeholder="Email" required>
+      <input type="password" id="signup-password-modal" placeholder="Password (6+ characters)" required minlength="6">
+      <label style="font-size:.78rem; color:var(--paper-dim);">Profile picture (optional)</label>
+      <input type="file" id="signup-avatar-modal" accept="image/*">
+      <button class="btn btn-primary" type="submit">Sign Up</button>
+      <p id="signup-error-modal" style="display:none;color:var(--garnet-2);font-size:.85rem;"></p>
+      <p class="modal-switch">Already have an account? <a id="show-login">Log in</a></p>
+    </form>
+  </div>
+</div>
+<div class="to-top glass" aria-label="Back to top">↑</div>
+<script src="js/main.js"></script>
+
+</body>
+</html>

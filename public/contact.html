@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Blaugrana Daily</title>
+<meta name="description" content="Get in touch — corrections, story tips, or partnership enquiries.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand" data-logo><span class="dot"></span><span data-site-name>Blaugrana Daily</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="">Home</a></li>
+      <li><a href="articles.html" class="">Articles</a></li>
+      <li><a href="matchreports.html" class="">Match Reports</a></li>
+      <li><a href="eras.html" class="">Eras &amp; Legends</a></li>
+      <li><a href="clips.html" class="">Clips</a></li>
+      <li><a href="banter.html" class="">Banter</a></li>
+      <li><a href="about.html" class="">About</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div id="auth-area"></div>
+      <a href="subscribe.html" class="nav-btn primary">Subscribe</a>
+    </div>
+    <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</nav>
+
+<header class="page-hero container">
+  <p class="eyebrow">Get in touch</p>
+  <h1>Corrections, tips, or partnership enquiries.</h1>
+  <p>This is for direct contact — for daily match updates in your inbox, see the <a href="subscribe.html" style="color:var(--gold);">Subscribe</a> page instead.</p>
+</header>
+<section style="padding-top:0;">
+  <div class="container contact-grid">
+    <div class="glass contact-form reveal">
+      <form id="contact-form">
+        <div><label for="name">Name</label><input id="name" type="text" required></div>
+        <div><label for="email">Email</label><input id="email" type="email" required></div>
+        <div><label for="message">Message</label><textarea id="message" rows="5" required></textarea></div>
+        <button class="btn btn-primary" type="submit">Send message</button>
+      </form>
+      <div class="form-success" id="form-success">Thanks — your message is in. Expect a reply within a couple of days.</div>
+      <div class="form-error" id="form-error">Something went wrong — please try again.</div>
+    </div>
+    <div class="reveal">
+      <div class="info-card glass">
+        <h4 style="margin-bottom:10px;">Direct contact</h4>
+        <p style="color:var(--paper-dim); font-size:.92rem; margin-bottom:10px;">Email: <a data-contact-email href="#" style="color:var(--gold);"></a></p>
+        <p style="color:var(--paper-dim); font-size:.92rem;">Phone: <a data-contact-phone href="#" style="color:var(--gold);"></a></p>
+      </div>
+      <div class="info-card glass">
+        <h4 style="margin-bottom:10px;">Follow along</h4>
+        <div class="social-links">
+          <a href="#" data-facebook-url target="_blank" rel="noopener" class="glass" aria-label="Facebook">FB</a>
+          <a href="#" data-tiktok-url target="_blank" rel="noopener" class="glass" aria-label="TikTok">TT</a>
+          <a href="#" data-instagram-url target="_blank" rel="noopener" class="glass" aria-label="Instagram">IG</a>
+          <a href="#" data-twitter-url target="_blank" rel="noopener" class="glass" aria-label="X">𝕏</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const message = document.getElementById('message').value;
+  const success = document.getElementById('form-success');
+  const error = document.getElementById('form-error');
+  success.classList.remove('show'); error.classList.remove('show');
+  try {
+    const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, message }) });
+    if (res.ok) { success.classList.add('show'); e.target.reset(); } else { error.classList.add('show'); }
+  } catch (err) { error.classList.add('show'); }
+});
+</script>
+
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-col footer-brand">
+        <div class="brand" data-logo><span class="dot"></span><span data-site-name>Blaugrana Daily</span></div>
+        <p data-tagline>Barça — the history, the present, and what comes next.</p>
+        <div class="footer-socials">
+          <a href="#" data-facebook-url target="_blank" rel="noopener" class="glass" aria-label="Facebook">FB</a>
+          <a href="#" data-tiktok-url target="_blank" rel="noopener" class="glass" aria-label="TikTok">TT</a>
+          <a href="#" data-instagram-url target="_blank" rel="noopener" class="glass" aria-label="Instagram">IG</a>
+          <a href="#" data-twitter-url target="_blank" rel="noopener" class="glass" aria-label="X">𝕏</a>
+          <a href="#" data-youtube-url target="_blank" rel="noopener" class="glass" aria-label="YouTube">YT</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="articles.html">Articles</a>
+        <a href="matchreports.html">Match Reports</a>
+        <a href="eras.html">Eras &amp; Legends</a>
+        <a href="clips.html">Clips</a>
+        <a href="banter.html">Banter</a>
+      </div>
+      <div class="footer-col">
+        <h4>Site</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="subscribe.html">Subscribe</a>
+        <a href="support.html">Support Us</a>
+      </div>
+      <div class="footer-col footer-newsletter">
+        <h4>Daily Digest</h4>
+        <p style="margin-bottom:12px; font-size:.85rem;">One email a day. No spam.</p>
+        <form id="footer-newsletter-form">
+          <input type="email" id="footer-newsletter-email" placeholder="you@email.com" required>
+          <button class="btn btn-primary" type="submit" style="width:100%;">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 <span data-site-name>Blaugrana Daily</span>. Fan-made — not officially affiliated with FC Barcelona.</span>
+      <span>Made for the culers, every matchday<a href="admin.html" class="hidden-admin-link">.</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box glass">
+    <button class="modal-close">✕</button>
+    <form id="login-form-modal">
+      <h3>Log In</h3>
+      <input type="email" id="login-email-modal" placeholder="Email" required>
+      <input type="password" id="login-password-modal" placeholder="Password" required>
+      <button class="btn btn-primary" type="submit">Log In</button>
+      <p id="login-error-modal" style="display:none;color:var(--garnet-2);font-size:.85rem;"></p>
+      <p class="modal-switch">New here? <a id="show-signup">Create an account</a></p>
+    </form>
+    <form id="signup-form-modal" style="display:none;">
+      <h3>Sign Up</h3>
+      <input type="text" id="signup-name-modal" placeholder="Full name" required>
+      <input type="text" id="signup-username-modal" placeholder="Username" required>
+      <input type="email" id="signup-email-modal" placeholder="Email" required>
+      <input type="password" id="signup-password-modal" placeholder="Password (6+ characters)" required minlength="6">
+      <label style="font-size:.78rem; color:var(--paper-dim);">Profile picture (optional)</label>
+      <input type="file" id="signup-avatar-modal" accept="image/*">
+      <button class="btn btn-primary" type="submit">Sign Up</button>
+      <p id="signup-error-modal" style="display:none;color:var(--garnet-2);font-size:.85rem;"></p>
+      <p class="modal-switch">Already have an account? <a id="show-login">Log in</a></p>
+    </form>
+  </div>
+</div>
+<div class="to-top glass" aria-label="Back to top">↑</div>
+<script src="js/main.js"></script>
+
+</body>
+</html>

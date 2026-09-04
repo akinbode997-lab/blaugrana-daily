@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Blaugrana Daily</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .admin-wrap{ max-width:1040px; margin:0 auto; padding:150px 28px 80px; }
+  .admin-tabs{ display:flex; gap:10px; margin-bottom:32px; flex-wrap:wrap; }
+  .admin-tab{ padding:10px 18px; border-radius:100px; cursor:pointer; background:var(--glass); border:1px solid var(--glass-border); font-size:.85rem; }
+  .admin-tab.active{ background:var(--glass-strong); border-color:var(--gold); }
+  .admin-panel{ display:none; } .admin-panel.active{ display:block; }
+  .admin-table{ width:100%; border-collapse:collapse; }
+  .admin-table th, .admin-table td{ text-align:left; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,0.08); font-size:.88rem; vertical-align:top; }
+  .admin-table th{ color:var(--gold); font-family:var(--mono); font-size:.7rem; text-transform:uppercase; }
+  .row-actions{ display:flex; gap:10px; } .row-actions button{ background:none; border:none; color:var(--paper-dim); cursor:pointer; font-size:.8rem; } .row-actions button:hover{ color:var(--gold); }
+  .login-box{ max-width:400px; margin:150px auto; padding:40px; }
+  .field-group{ display:flex; flex-direction:column; gap:14px; margin-bottom:20px; }
+  .field-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .field-row > div{ flex:1; min-width:160px; }
+  .msg-error{ color:var(--garnet-2); font-size:.85rem; margin-top:10px; } .msg-ok{ color:var(--gold); font-size:.85rem; margin-top:10px; }
+  .admin-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; flex-wrap:wrap; gap:14px; }
+  .thumb{ width:60px; height:40px; object-fit:cover; border-radius:6px; }
+  label{ font-size:.8rem; color:var(--paper-dim); display:block; margin-bottom:4px; }
+</style>
+</head>
+<body>
+
+<div id="login-view" class="login-box glass">
+  <h2 style="margin-bottom:20px;">Admin Login</h2>
+  <form id="login-form" style="display:flex; flex-direction:column; gap:14px;">
+    <div><label>Username</label><input id="login-username" type="text" required></div>
+    <div><label>Password</label><input id="login-password" type="password" required></div>
+    <button class="btn btn-primary" type="submit">Log in</button>
+    <p id="login-error" class="msg-error" style="display:none;"></p>
+  </form>
+</div>
+
+<div id="dashboard-view" class="admin-wrap" style="display:none;">
+  <div class="admin-header">
+    <div><p class="eyebrow">Signed in as <span id="admin-username"></span></p><h1 style="font-size:1.7rem;">Dashboard</h1></div>
+    <button class="btn btn-ghost glass" id="logout-btn">Log out</button>
+  </div>
+
+  <div class="admin-tabs">
+    <div class="admin-tab active" data-panel="posts-panel">Posts</div>
+    <div class="admin-tab" data-panel="new-post-panel">New / Edit Post</div>
+    <div class="admin-tab" data-panel="settings-panel">Site Settings</div>
+    <div class="admin-tab" data-panel="comments-panel">Comments</div>
+    <div class="admin-tab" data-panel="messages-panel">Messages</div>
+    <div class="admin-tab" data-panel="subscribers-panel">Subscribers</div>
+    <div class="admin-tab" data-panel="supporters-panel">Supporters</div>
+    <div class="admin-tab" data-panel="admins-panel">Admins</div>
+    <div class="admin-tab" data-panel="account-panel">Account</div>
+  </div>
+
+  <!-- POSTS LIST -->
+  <div class="admin-panel active" id="posts-panel">
+    <div class="filter-bar">
+      <div class="filter-chip glass active" data-post-filter="all">All</div>
+      <div class="filter-chip glass" data-post-filter="article">Articles</div>
+      <div class="filter-chip glass" data-post-filter="matchreport">Match Reports</div>
+      <div class="filter-chip glass" data-post-filter="clip">Clips</div>
+      <div class="filter-chip glass" data-post-filter="banter">Banter</div>
+    </div>
+    <table class="admin-table">
+      <thead><tr><th></th><th>Title</th><th>Type</th><th>Tag</th><th></th></tr></thead>
+      <tbody id="admin-posts-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- NEW/EDIT POST -->
+  <div class="admin-panel" id="new-post-panel">
+    <div class="glass" style="padding:30px;">
+      <h3 id="post-form-heading" style="margin-bottom:20px;">New Post</h3>
+      <form id="post-form" enctype="multipart/form-data">
+        <input type="hidden" id="post-id">
+        <div class="field-group">
+          <div class="field-row">
+            <div><label>Type</label>
+              <select id="p-type" required>
+                <option value="article">Article</option>
+                <option value="matchreport">Match Report</option>
+                <option value="clip">Clip</option>
+                <option value="banter">Banter</option>
+              </select>
+            </div>
+            <div><label>Tag (key, e.g. "modern")</label><input id="p-tag" type="text"></div>
+            <div><label>Tag label (shown to readers)</label><input id="p-tag-label" type="text"></div>
+          </div>
+          <div><label>Title</label><input id="p-title" type="text" required></div>
+          <div><label>Excerpt (1-2 sentences)</label><textarea id="p-excerpt" rows="2"></textarea></div>
+          <div class="field-row">
+            <div><label>Read time (e.g. "6 min")</label><input id="p-read-time" type="text"></div>
+            <div><label>Image (optional, for articles/match reports)</label><input id="p-image" type="file" accept="image/*"></div>
+          </div>
+          <div><label>Body (articles/match reports — blank line between paragraphs)</label><textarea id="p-body" rows="10"></textarea></div>
+          <div><label>Video URL (clips — YouTube or TikTok link)</label><input id="p-video-url" type="text" placeholder="https://youtube.com/watch?v=..."></div>
+          <div><label>Tweet/X URL (banter — paste a public post link)</label><input id="p-embed-url" type="text" placeholder="https://x.com/user/status/..."></div>
+          <div class="field-row">
+            <div><label>Source URL (optional — shown as a citation at the end)</label><input id="p-source-url" type="text" placeholder="https://en.wikipedia.org/..."></div>
+            <div><label>Source label (e.g. "Wikipedia")</label><input id="p-source-label" type="text"></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Save post</button>
+        <button class="btn btn-ghost glass" type="button" id="cancel-edit-btn" style="display:none; margin-left:10px;">Cancel edit</button>
+        <p id="post-form-status" style="margin-top:12px;"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- SITE SETTINGS -->
+  <div class="admin-panel" id="settings-panel">
+    <div class="glass" style="padding:30px;">
+      <h3 style="margin-bottom:20px;">Branding &amp; Contact — change these anytime, no code needed</h3>
+      <form id="settings-form" enctype="multipart/form-data">
+        <div class="field-group">
+          <div class="field-row">
+            <div><label>Site name</label><input id="s-site-name" type="text"></div>
+            <div><label>Tagline</label><input id="s-tagline" type="text"></div>
+          </div>
+          <div class="field-row">
+            <div><label>Logo (image file)</label><input id="s-logo" type="file" accept="image/*"></div>
+            <div><label>Hero background type</label>
+              <select id="s-hero-type"><option value="image">Image</option><option value="video">Video</option></select>
+            </div>
+          </div>
+          <div><label>Hero background file (homepage — image or video)</label><input id="s-hero-media" type="file" accept="image/*,video/*"></div>
+          <div class="field-row">
+            <div><label>Contact email</label><input id="s-contact-email" type="email"></div>
+            <div><label>Contact phone</label><input id="s-contact-phone" type="text"></div>
+          </div>
+          <div class="field-row">
+            <div><label>WhatsApp number (with country code, e.g. +2348012345678)</label><input id="s-whatsapp" type="text"></div>
+          </div>
+          <div class="field-row">
+            <div><label>Facebook URL</label><input id="s-facebook" type="text"></div>
+            <div><label>TikTok URL</label><input id="s-tiktok" type="text"></div>
+          </div>
+          <div class="field-row">
+            <div><label>Instagram URL</label><input id="s-instagram" type="text"></div>
+            <div><label>X / Twitter URL</label><input id="s-twitter" type="text"></div>
+          </div>
+          <div><label>YouTube URL</label><input id="s-youtube" type="text"></div>
+        </div>
+        <button class="btn btn-primary" type="submit">Save settings</button>
+        <p id="settings-status" style="margin-top:12px;"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- COMMENTS -->
+  <div class="admin-panel" id="comments-panel">
+    <table class="admin-table">
+      <thead><tr><th>Name</th><th>Comment</th><th>Date</th><th></th></tr></thead>
+      <tbody id="admin-comments-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="admin-panel" id="messages-panel">
+    <table class="admin-table">
+      <thead><tr><th>From</th><th>Message</th><th>Date</th><th></th></tr></thead>
+      <tbody id="admin-messages-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- SUBSCRIBERS -->
+  <div class="admin-panel" id="subscribers-panel">
+    <table class="admin-table"><thead><tr><th>Email</th><th>Subscribed</th></tr></thead><tbody id="admin-subscribers-body"><tr><td colspan="2">Loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- SUPPORTERS -->
+  <div class="admin-panel" id="supporters-panel">
+    <table class="admin-table"><thead><tr><th>Email</th><th>Amount (₦)</th><th>Tier</th><th>Date</th></tr></thead><tbody id="admin-supporters-body"><tr><td colspan="4">Loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- ADMINS (multi-admin management) -->
+  <div class="admin-panel" id="admins-panel">
+    <div class="glass" style="padding:30px; max-width:500px; margin-bottom:24px;">
+      <h3 style="margin-bottom:20px;">Add another admin</h3>
+      <form id="add-admin-form">
+        <div class="field-group">
+          <div><label>Username</label><input id="new-admin-username" type="text" required></div>
+          <div><label>Password (8+ characters)</label><input id="new-admin-password" type="password" required minlength="8"></div>
+        </div>
+        <button class="btn btn-primary" type="submit">Create admin</button>
+        <p id="add-admin-status" style="margin-top:12px;"></p>
+      </form>
+    </div>
+    <table class="admin-table">
+      <thead><tr><th>Username</th><th>Created</th><th></th></tr></thead>
+      <tbody id="admin-admins-body"><tr><td colspan="3">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- ACCOUNT -->
+  <div class="admin-panel" id="account-panel">
+    <div class="glass" style="padding:30px; max-width:420px;">
+      <h3 style="margin-bottom:20px;">Change password</h3>
+      <form id="password-form">
+        <div class="field-group">
+          <div><label>Current password</label><input id="current-password" type="password" required></div>
+          <div><label>New password (min 8 characters)</label><input id="new-password" type="password" required minlength="8"></div>
+        </div>
+        <button class="btn btn-primary" type="submit">Update password</button>
+        <p id="password-status" style="margin-top:12px;"></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const loginView = document.getElementById('login-view');
+const dashboardView = document.getElementById('dashboard-view');
+
+async function checkSession() {
+  const res = await fetch('/api/me');
+  const data = await res.json();
+  if (data.loggedIn) showDashboard(data.username);
+  else { loginView.style.display = 'block'; dashboardView.style.display = 'none'; }
+}
+
+function showDashboard(username) {
+  loginView.style.display = 'none';
+  dashboardView.style.display = 'block';
+  document.getElementById('admin-username').textContent = username;
+  loadPosts(); loadSettings(); loadComments(); loadMessages(); loadSubscribers(); loadSupporters(); loadAdmins();
+}
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('login-username').value;
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  errorEl.style.display = 'none';
+  const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+  const data = await res.json();
+  if (res.ok) showDashboard(data.username);
+  else { errorEl.textContent = data.error || 'Login failed'; errorEl.style.display = 'block'; }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => { await fetch('/api/logout', { method: 'POST' }); checkSession(); });
+
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ===== POSTS =====
+let currentPostFilter = 'all';
+async function loadPosts() {
+  const url = currentPostFilter === 'all' ? '/api/posts?perPage=200' : `/api/posts?type=${currentPostFilter}&perPage=200`;
+  const res = await fetch(url);
+  const data = await res.json();
+  window._posts = data.items;
+  const body = document.getElementById('admin-posts-body');
+  body.innerHTML = data.items.map(p => `
+    <tr>
+      <td>${p.image_url ? `<img class="thumb" src="${p.image_url}">` : ''}</td>
+      <td>${p.title}</td>
+      <td>${p.type}</td>
+      <td>${p.tag_label || p.tag || ''}</td>
+      <td class="row-actions"><button onclick="editPost('${p._id}')">Edit</button><button onclick="deletePost('${p._id}')">Delete</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="5">No posts yet.</td></tr>';
+}
+document.querySelectorAll('[data-post-filter]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('[data-post-filter]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentPostFilter = chip.dataset.postFilter;
+    loadPosts();
+  });
+});
+
+function editPost(id) {
+  const p = window._posts.find(x => x._id === id);
+  if (!p) return;
+  document.getElementById('post-id').value = p._id;
+  document.getElementById('p-type').value = p.type;
+  document.getElementById('p-tag').value = p.tag || '';
+  document.getElementById('p-tag-label').value = p.tag_label || '';
+  document.getElementById('p-title').value = p.title;
+  document.getElementById('p-excerpt').value = p.excerpt || '';
+  document.getElementById('p-read-time').value = p.read_time || '';
+  document.getElementById('p-body').value = p.body || '';
+  document.getElementById('p-video-url').value = p.video_url || '';
+  document.getElementById('p-embed-url').value = p.embed_url || '';
+  document.getElementById('p-source-url').value = p.source_url || '';
+  document.getElementById('p-source-label').value = p.source_label || '';
+  document.getElementById('post-form-heading').textContent = 'Edit Post';
+  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+  document.querySelector('[data-panel="new-post-panel"]').click();
+}
+document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+  document.getElementById('post-form').reset();
+  document.getElementById('post-id').value = '';
+  document.getElementById('post-form-heading').textContent = 'New Post';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+});
+async function deletePost(id) {
+  if (!confirm('Delete this post permanently?')) return;
+  await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+  loadPosts();
+}
+
+document.getElementById('post-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('post-id').value;
+  const fd = new FormData();
+  fd.append('type', document.getElementById('p-type').value);
+  fd.append('tag', document.getElementById('p-tag').value);
+  fd.append('tag_label', document.getElementById('p-tag-label').value);
+  fd.append('title', document.getElementById('p-title').value);
+  fd.append('excerpt', document.getElementById('p-excerpt').value);
+  fd.append('read_time', document.getElementById('p-read-time').value);
+  fd.append('body', document.getElementById('p-body').value);
+  fd.append('video_url', document.getElementById('p-video-url').value);
+  fd.append('embed_url', document.getElementById('p-embed-url').value);
+  fd.append('source_url', document.getElementById('p-source-url').value);
+  fd.append('source_label', document.getElementById('p-source-label').value);
+  const imgFile = document.getElementById('p-image').files[0];
+  if (imgFile) fd.append('image', imgFile);
+
+  const status = document.getElementById('post-form-status');
+  const url = id ? `/api/posts/${id}` : '/api/posts';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, body: fd });
+  if (res.ok) {
+    status.textContent = 'Saved.'; status.className = 'msg-ok';
+    document.getElementById('post-form').reset();
+    document.getElementById('post-id').value = '';
+    document.getElementById('cancel-edit-btn').style.display = 'none';
+    document.getElementById('post-form-heading').textContent = 'New Post';
+    loadPosts();
+  } else {
+    const data = await res.json();
+    status.textContent = data.error || 'Something went wrong.'; status.className = 'msg-error';
+  }
+});
+
+// ===== SETTINGS =====
+async function loadSettings() {
+  const res = await fetch('/api/settings');
+  const s = await res.json();
+  document.getElementById('s-site-name').value = s.site_name || '';
+  document.getElementById('s-tagline').value = s.tagline || '';
+  document.getElementById('s-hero-type').value = s.hero_media_type || 'image';
+  document.getElementById('s-contact-email').value = s.contact_email || '';
+  document.getElementById('s-contact-phone').value = s.contact_phone || '';
+  document.getElementById('s-whatsapp').value = s.whatsapp_number || '';
+  document.getElementById('s-facebook').value = s.facebook_url || '';
+  document.getElementById('s-tiktok').value = s.tiktok_url || '';
+  document.getElementById('s-instagram').value = s.instagram_url || '';
+  document.getElementById('s-twitter').value = s.twitter_url || '';
+  document.getElementById('s-youtube').value = s.youtube_url || '';
+}
+document.getElementById('settings-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData();
+  fd.append('site_name', document.getElementById('s-site-name').value);
+  fd.append('tagline', document.getElementById('s-tagline').value);
+  fd.append('hero_media_type', document.getElementById('s-hero-type').value);
+  fd.append('contact_email', document.getElementById('s-contact-email').value);
+  fd.append('contact_phone', document.getElementById('s-contact-phone').value);
+  fd.append('whatsapp_number', document.getElementById('s-whatsapp').value);
+  fd.append('facebook_url', document.getElementById('s-facebook').value);
+  fd.append('tiktok_url', document.getElementById('s-tiktok').value);
+  fd.append('instagram_url', document.getElementById('s-instagram').value);
+  fd.append('twitter_url', document.getElementById('s-twitter').value);
+  fd.append('youtube_url', document.getElementById('s-youtube').value);
+  const logoFile = document.getElementById('s-logo').files[0];
+  if (logoFile) fd.append('logo', logoFile);
+  const heroFile = document.getElementById('s-hero-media').files[0];
+  if (heroFile) fd.append('hero_media', heroFile);
+
+  const status = document.getElementById('settings-status');
+  const res = await fetch('/api/settings', { method: 'PUT', body: fd });
+  if (res.ok) { status.textContent = 'Saved.'; status.className = 'msg-ok'; }
+  else { status.textContent = 'Something went wrong.'; status.className = 'msg-error'; }
+});
+
+// ===== COMMENTS =====
+async function loadComments() {
+  const res = await fetch('/api/posts?perPage=200');
+  const posts = (await res.json()).items;
+  const allComments = [];
+  for (const p of posts) {
+    const cRes = await fetch(`/api/comments?post_id=${p._id}`);
+    const cs = await cRes.json();
+    cs.forEach(c => allComments.push({ ...c, postTitle: p.title }));
+  }
+  const body = document.getElementById('admin-comments-body');
+  body.innerHTML = allComments.map(c => `
+    <tr><td>${c.name}</td><td>${c.comment}<br><span style="color:var(--paper-dim); font-size:.75rem;">on: ${c.postTitle}</span></td><td>${new Date(c.created_at).toLocaleDateString()}</td><td class="row-actions"><button onclick="deleteComment('${c._id}')">Delete</button></td></tr>
+  `).join('') || '<tr><td colspan="4">No comments yet.</td></tr>';
+}
+async function deleteComment(id) { await fetch(`/api/comments/${id}`, { method: 'DELETE' }); loadComments(); }
+
+// ===== MESSAGES / SUBSCRIBERS / SUPPORTERS =====
+async function loadMessages() {
+  const res = await fetch('/api/messages');
+  const messages = await res.json();
+  document.getElementById('admin-messages-body').innerHTML = messages.map(m => `
+    <tr><td>${m.name}<br><span style="color:var(--paper-dim); font-size:.8rem;">${m.email}</span></td><td>${m.message}</td><td>${new Date(m.created_at).toLocaleDateString()}</td><td class="row-actions"><button onclick="deleteMessage('${m._id}')">Delete</button></td></tr>
+  `).join('') || '<tr><td colspan="4">No messages yet.</td></tr>';
+}
+async function deleteMessage(id) { await fetch(`/api/messages/${id}`, { method: 'DELETE' }); loadMessages(); }
+
+async function loadSubscribers() {
+  const res = await fetch('/api/subscribers');
+  const subs = await res.json();
+  document.getElementById('admin-subscribers-body').innerHTML = subs.map(s => `<tr><td>${s.email}</td><td>${new Date(s.created_at).toLocaleDateString()}</td></tr>`).join('') || '<tr><td colspan="2">No subscribers yet.</td></tr>';
+}
+
+async function loadSupporters() {
+  const res = await fetch('/api/payment/supporters');
+  const supporters = await res.json();
+  document.getElementById('admin-supporters-body').innerHTML = supporters.map(s => `<tr><td>${s.email}</td><td>₦${s.amount_naira}</td><td>${s.tier ? s.tier.icon + ' ' + s.tier.name : ''}</td><td>${new Date(s.created_at).toLocaleDateString()}</td></tr>`).join('') || '<tr><td colspan="4">No supporters yet.</td></tr>';
+}
+
+// ===== ADMINS (multi-admin) =====
+async function loadAdmins() {
+  const res = await fetch('/api/admins');
+  const admins = await res.json();
+  document.getElementById('admin-admins-body').innerHTML = admins.map(a => `
+    <tr><td>${a.username}</td><td>${new Date(a.created_at).toLocaleDateString()}</td><td class="row-actions"><button onclick="deleteAdmin('${a._id}')">Remove</button></td></tr>
+  `).join('') || '<tr><td colspan="3">No admins found.</td></tr>';
+}
+async function deleteAdmin(id) {
+  if (!confirm('Remove this admin account?')) return;
+  const res = await fetch(`/api/admins/${id}`, { method: 'DELETE' });
+  if (res.ok) loadAdmins(); else alert((await res.json()).error);
+}
+document.getElementById('add-admin-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('new-admin-username').value;
+  const password = document.getElementById('new-admin-password').value;
+  const status = document.getElementById('add-admin-status');
+  const res = await fetch('/api/admins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+  const data = await res.json();
+  if (res.ok) { status.textContent = 'Admin created.'; status.className = 'msg-ok'; e.target.reset(); loadAdmins(); }
+  else { status.textContent = data.error; status.className = 'msg-error'; }
+});
+
+
+document.getElementById('password-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const currentPassword = document.getElementById('current-password').value;
+  const newPassword = document.getElementById('new-password').value;
+  const status = document.getElementById('password-status');
+  const res = await fetch('/api/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword, newPassword }) });
+  const data = await res.json();
+  if (res.ok) { status.textContent = 'Password updated.'; status.className = 'msg-ok'; e.target.reset(); }
+  else { status.textContent = data.error || 'Something went wrong.'; status.className = 'msg-error'; }
+});
+
+checkSession();
+</script>
+</body>
+</html>
